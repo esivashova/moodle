@@ -373,7 +373,11 @@ abstract class grade_report {
                 $this->currentgroup = -2; // means can not access any groups at all
             }
 
-            if ($this->currentgroup) {
+            if ($this->currentgroup == GROUP_NOT_IN_ANY_GROUP) {
+                $this->currentgroupname = get_string('participantsnotingroup');
+                $this->groupsql = " LEFT JOIN {groups_members} gm ON gm.userid = u.id ";
+                $this->groupwheresql = " AND gm.groupid IS NULL ";
+            } else {
                 $group = groups_get_group($this->currentgroup);
                 $this->currentgroupname     = $group->name;
                 $this->groupsql             = " JOIN {groups_members} gm ON gm.userid = u.id ";
