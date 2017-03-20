@@ -1001,7 +1001,10 @@ function groups_get_course_group($course, $update=false, $allowedgroups=null) {
             if ($groupmode == VISIBLEGROUPS or $groupmode === 'aag') {
                 $SESSION->activegroup[$course->id][$groupmode][$course->defaultgroupingid] = 0;
             }
-
+        } else if ($changegroup == GROUP_NOT_IN_ANY_GROUP) {
+            if ($groupmode == VISIBLEGROUPS or $groupmode === 'aag') {
+                $SESSION->activegroup[$course->id][$groupmode][$course->defaultgroupingid] = $changegroup;
+            }
         } else {
             if ($allowedgroups and array_key_exists($changegroup, $allowedgroups)) {
                 $SESSION->activegroup[$course->id][$groupmode][$course->defaultgroupingid] = $changegroup;
