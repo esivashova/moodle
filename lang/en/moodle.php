@@ -1480,6 +1480,7 @@ $string['parentfolder'] = 'Parent folder';
 $string['participants'] = 'Participants';
 $string['participantscount'] = 'Number of participants: {$a}';
 $string['participantslist'] = 'Participants list';
+$string['participantsnotingroup'] = 'Participants not in a group';
 $string['participationratio'] = 'Participation ratio';
 $string['participationreport'] = 'Participation report';
 $string['password'] = 'Password';

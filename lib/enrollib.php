@@ -1318,6 +1318,9 @@ function get_enrolled_with_capabilities_join(context $context, $prefix = '', $ca
         $groupjoin = groups_get_members_join($group, $uid);
         $joins[] = $groupjoin->joins;
         $params = array_merge($params, $groupjoin->params);
+        if ($group == GROUP_NOT_IN_ANY_GROUP) {
+            $wheres[] = $groupjoin->wheres;
+        }
     }
 
     $joins = implode("\n", $joins);
