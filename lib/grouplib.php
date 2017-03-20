@@ -38,6 +38,11 @@ define('SEPARATEGROUPS', 1);
  */
 define('VISIBLEGROUPS', 2);
 
+/**
+ * Students, who are not members of any group
+ */
+define('GROUP_NOT_IN_ANY_GROUP', -3);
+
 
 /**
  * Determines if a group with a given groupid exists.
@@ -729,6 +734,10 @@ function groups_print_activity_menu($cm, $urlroot, $return=false, $hideallpartic
 
     $groupsmenu += groups_sort_menu_options($allowedgroups, $usergroups);
 
+    if ((!$allowedgroups or $groupmode == VISIBLEGROUPS or $aag)) {
+        $groupsmenu[GROUP_NOT_IN_ANY_GROUP] = get_string('notgroupmember');
+    }
+
     if ($groupmode == VISIBLEGROUPS) {
         $grouplabel = get_string('groupsvisible');
     } else {
@@ -819,6 +828,7 @@ function groups_get_course_group($course, $update=false, $allowedgroups=null) {
  * @param bool $update change active group if group param submitted
  * @param array $allowedgroups list of groups user may access (INTERNAL, to be used only from groups_print_activity_menu())
  * @return mixed false if groups not used, int if groups used, 0 means all groups (access must be verified in SEPARATE mode)
+ *    GROUP_NOT_IN_ANY_GROUP means not a members of any group
  */
 function groups_get_activity_group($cm, $update=false, $allowedgroups=null) {
     global $USER, $SESSION;
@@ -852,7 +862,10 @@ function groups_get_activity_group($cm, $update=false, $allowedgroups=null) {
             if ($groupmode == VISIBLEGROUPS or $groupmode === 'aag') {
                 $SESSION->activegroup[$cm->course][$groupmode][$cm->groupingid] = 0;
             }
-
+        } else if ($changegroup == GROUP_NOT_IN_ANY_GROUP) {
+            if ($groupmode == VISIBLEGROUPS or $groupmode === 'aag') {
+                $SESSION->activegroup[$cm->course][$groupmode][$cm->groupingid] = GROUP_NOT_IN_ANY_GROUP;
+            }
         } else {
             if ($allowedgroups and array_key_exists($changegroup, $allowedgroups)) {
                 $SESSION->activegroup[$cm->course][$groupmode][$cm->groupingid] = $changegroup;
@@ -961,10 +974,19 @@ function groups_get_members_join($groupid, $useridcolumn) {
     $i++;
     $prefix = 'gm' . $i . '_';
 
-    $join = "JOIN {groups_members} {$prefix}gm ON ({$prefix}gm.userid = $useridcolumn AND {$prefix}gm.groupid = :{$prefix}gmid)";
-    $param = array("{$prefix}gmid" => $groupid);
+    $wheres = '';
+    $param = array();
+    if ($groupid == GROUP_NOT_IN_ANY_GROUP) {
+        $join = "LEFT JOIN {groups_members} {$prefix}gm ON {$prefix}gm.userid = $useridcolumn";
+        $wheres = "{$prefix}gm.groupid IS NULL";
+    } else {
+        $join = "JOIN {groups_members} {$prefix}gm
+		            ON ({$prefix}gm.userid = $useridcolumn
+					    AND {$prefix}gm.groupid = :{$prefix}gmid)";
+        $param = array("{$prefix}gmid" => $groupid);
+    }
 
-    return new \core\dml\sql_join($join, '', $param);
+    return new \core\dml\sql_join($join, $wheres, $param);
 }
 
 /**
