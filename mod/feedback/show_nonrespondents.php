@@ -195,7 +195,7 @@ if ($table->get_sql_sort()) {
 
 //get students in conjunction with groupmode
 if ($groupmode > 0) {
-    if ($mygroupid > 0) {
+    if ($mygroupid > 0 or $mygroupid == GROUP_NOT_IN_ANY_GROUP) {
         $usedgroupid = $mygroupid;
     } else {
         $usedgroupid = false;

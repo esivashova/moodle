@@ -298,6 +298,14 @@ class mod_feedback_structure {
                         WHERE fbc.feedback = :feedback
                             AND gm.groupid = :groupid
                             AND fbc.userid = gm.userid";
+        } else if (intval($groupid) == GROUP_NOT_IN_ANY_GROUP) {
+            $query = "SELECT COUNT(DISTINCT fbc.id)
+                        FROM {feedback_completed} fbc
+                        WHERE fbc.feedback = :feedback
+                            AND fbc.userid IN (SELECT u.id FROM {user} u
+                                LEFT JOIN {groups_members} gm
+                                    ON u.id = gm.userid
+                                    WHERE gm.userid IS NULL)";
         } else if ($this->courseid) {
             $query = "SELECT COUNT(fbc.id)
                         FROM {feedback_completed} fbc

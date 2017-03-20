@@ -1281,7 +1281,8 @@ function data_can_view_record($data, $record, $currentgroup, $canmanageentries) 
     if ($canmanageentries || empty($data->approval) ||
              $record->approved || (isloggedin() && $record->userid == $USER->id)) {
 
-        if (!$currentgroup || $record->groupid == $currentgroup || $record->groupid == 0) {
+        if (!$currentgroup || $currentgroup != GROUP_NOT_IN_ANY_GROUP ||
+             $record->groupid == $currentgroup || $record->groupid == 0) {
             return true;
         }
     }

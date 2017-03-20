@@ -96,7 +96,7 @@ $currentgroup = groups_get_activity_group($cm, true);
 $params = array();
 if ($currentgroup) {
     $groupselect = " AND groupid = '$currentgroup'";
-    $groupparam = "_group{$currentgroup}";
+    $groupparam = ($currentgroup == GROUP_NOT_IN_ANY_GROUP) ? "_participantsnotingroup" : "_group{$currentgroup}";
     $params['groupid'] = $currentgroup;
 } else {
     $groupselect = "";
