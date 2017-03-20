@@ -2627,7 +2627,7 @@ function forum_get_discussions($cm, $forumsort="", $fullpost=true, $unused=-1, $
                 $groupselect = "AND (d.groupid = ? OR d.groupid = -1)";
                 $params[] = $currentgroup;
             } else {
-                $groupselect = "AND d.groupid = -1";
+                $groupselect = "AND d.groupid = -1 OR d.groupid = ".GROUP_NOT_IN_ANY_GROUP;
             }
         }
     } else {
@@ -3788,6 +3788,8 @@ function forum_print_discussion_header(&$post, $forum, $group = -1, $datestring 
             } else {
                 echo $group->name;
             }
+        } else if ($post->groupid != GROUP_NOT_IN_ANY_GROUP) {
+            echo "All";
         }
         echo "</td>\n";
     }
@@ -5009,7 +5011,9 @@ function forum_user_can_post_discussion($forum, $currentgroup=null, $unused=-1, 
     }
 
     if ($currentgroup) {
-        return groups_is_member($currentgroup);
+        return groups_is_member($currentgroup) || !count($USER->groupmember);
+    } else if (!count($USER->groupmember)) {
+        return true;
     } else {
         // no group membership and no accessallgroups means no new discussions
         // reverted to 1.7 behaviour in 1.9+,  buggy in 1.8.0-1.9.0

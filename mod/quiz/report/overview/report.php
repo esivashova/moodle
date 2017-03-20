@@ -162,15 +162,18 @@ class quiz_overview_report extends quiz_attempts_report {
                             $quiz, $groupstudentsjoins);
                     if ($currentgroup) {
                         $a= new stdClass();
-                        $a->groupname = groups_get_group_name($currentgroup);
                         $a->coursestudents = get_string('participants');
                         $a->countregradeneeded = $regradesneeded;
-                        $regradealldrydolabel =
-                                get_string('regradealldrydogroup', 'quiz_overview', $a);
-                        $regradealldrylabel =
-                                get_string('regradealldrygroup', 'quiz_overview', $a);
-                        $regradealllabel =
-                                get_string('regradeallgroup', 'quiz_overview', $a);
+                        if ($currentgroup == GROUP_NOT_IN_ANY_GROUP) {
+                            $regradealldrydolabel = get_string('regradealldrydonotgroupmembers', 'quiz_overview', $a);
+                            $regradealldrylabel = get_string('regradealldrynotgroupmembers', 'quiz_overview', $a);
+                            $regradealllabel = get_string('regradeallnotgroupmembers', 'quiz_overview', $a);
+                        } else {
+                            $a->groupname = groups_get_group_name($currentgroup);
+                            $regradealldrydolabel = get_string('regradealldrydogroup', 'quiz_overview', $a);
+                            $regradealldrylabel = get_string('regradealldrygroup', 'quiz_overview', $a);
+                            $regradealllabel = get_string('regradeallgroup', 'quiz_overview', $a);
+                        }
                     } else {
                         $regradealldrydolabel =
                                 get_string('regradealldrydo', 'quiz_overview', $regradesneeded);
@@ -258,7 +261,11 @@ class quiz_overview_report extends quiz_attempts_report {
                 if ($DB->record_exists_sql($sql, $groupstudentsjoins->params)) {
                     $data = quiz_report_grade_bands($bandwidth, $bands, $quiz->id, $groupstudentsjoins);
                     $chart = self::get_chart($labels, $data);
-                    $graphname = get_string('overviewreportgraphgroup', 'quiz_overview', groups_get_group_name($currentgroup));
+                    if ($currentgroup == GROUP_NOT_IN_ANY_GROUP) {
+                        $graphname = get_string('overviewreportgraphnotgroupmembers', 'quiz_overview');
+                    } else {
+                        $graphname = get_string('overviewreportgraphgroup', 'quiz_overview', groups_get_group_name($currentgroup));
+                    }
                     echo $output->chart($chart, $graphname);
                 }
             }

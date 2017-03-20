@@ -3581,9 +3581,17 @@ function get_users_by_capability(context $context, $capability, $fields = '', $s
 
     // Groups
     if ($groups) {
+        $groupid = $groups;
         $groups = (array)$groups;
         list($grouptest, $grpparams) = $DB->get_in_or_equal($groups, SQL_PARAMS_NAMED, 'grp');
-        $grouptest = "u.id IN (SELECT userid FROM {groups_members} gm WHERE gm.groupid $grouptest)";
+        if ($groupid == GROUP_NOT_IN_ANY_GROUP) {
+            $grouptest = "u.id IN (SELECT u.id FROM {user} u
+			                        LEFT JOIN {groups_members} gm ON u.id = gm.userid
+									    WHERE gm.groupid IS NULL)";
+        } else {
+            $grouptest = "u.id IN (SELECT userid FROM {groups_members} gm WHERE gm.groupid $grouptest)";
+        }
+
         $params = array_merge($params, $grpparams);
 
         if ($useviewallgroups) {
